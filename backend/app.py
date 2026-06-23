@@ -1,19 +1,22 @@
-import os
-import psycopg2
 from flask import Flask, jsonify
 from flask_cors import CORS
-from dotenv import load_dotenv
-
-load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+from db import get_db
+from routes.documents import documents_bp
+from routes.search import search_bp
+from routes.groups import groups_bp
+from routes.phrases import phrases_bp
+from routes.statistics import statistics_bp
+from routes.mining import mining_bp
 
 app = Flask(__name__)
 CORS(app)
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-
-def get_db():
-    return psycopg2.connect(DATABASE_URL)
+app.register_blueprint(documents_bp)
+app.register_blueprint(search_bp)
+app.register_blueprint(groups_bp)
+app.register_blueprint(phrases_bp)
+app.register_blueprint(statistics_bp)
+app.register_blueprint(mining_bp)
 
 
 @app.route("/")

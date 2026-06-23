@@ -2,7 +2,42 @@
   "permissions": {
     "allow": [
       "Bash(pip install *)",
-      "Bash(npx create-react-app *)"
+      "Bash(npx create-react-app *)",
+      "WebSearch",
+      "Bash(python init_db.py)",
+      "Bash(python -c \"from app import app; print\\('App loads OK'\\)\")",
+      "Bash(python app.py)",
+      "Bash(curl -s http://localhost:5000/health)",
+      "Bash(echo \"This is a test article about technology. It discusses the latest trends in AI and machine learning. The future of computing is here.\")",
+      "Bash(curl -s -X POST http://localhost:5000/api/documents/upload -F \"file=@/tmp/test_article.txt\" -F \"title=Test Article\" -F \"author=John Smith\" -F \"newspaper=NY Times\" -F \"section=Technology\" -F \"publish_date=2026-06-01\" -F \"language=en\")",
+      "Bash(curl -s http://localhost:5000/api/documents)",
+      "Bash(curl -s http://localhost:5000/api/documents/1)",
+      "Bash(curl -s -X PUT http://localhost:5000/api/documents/1 -H \"Content-Type: application/json\" -d '{\"title\":\"Updated Title\",\"section\":\"Science\"}')",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f\\\\\"title={d['title']}, section={d['section']}\\\\\"\\)\")",
+      "Bash(curl -s -X DELETE http://localhost:5000/api/documents/1)",
+      "Bash(npm start *)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s \"http://localhost:5000/api/search/documents?section=Technology\")",
+      "Bash(curl -s \"http://localhost:5000/api/search/documents?author=Carlos\")",
+      "Bash(curl -s \"http://localhost:5000/api/search/words?word=climate\")",
+      "Bash(npx react-scripts *)",
+      "WebFetch(domain:claude.ai)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "Read(//c/Users/refae/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/fe106050-3248-4826-aa92-403dcec0e7fe/de6c241e-ae76-452d-b10d-e9905f8e9ee7/skills/docx/**)",
+      "Bash(python scripts/office/extract-text.py \"C:\\\\Users\\\\refae\\\\Downloads\\\\מסמך_תכנון_קונקורדנציה_מתוקן.docx\")",
+      "Bash(timeout 3)",
+      "Bash(python load_samples.py)",
+      "Bash(python -c ' *)",
+      "Bash(curl -s -X POST http://localhost:5000/api/articles/upload -F \"file=@C:\\\\Users\\\\refae\\\\Desktop\\\\data base\\\\Data-bases\\\\data\\\\sample_texts\\\\article1_ai_revolution.txt;type=text/plain\")",
+      "Bash(curl -s \"http://localhost:5000/api/search/word?word=AI\")",
+      "Bash(python -m json.tool)",
+      "Bash(curl -s \"http://localhost:5000/api/articles\")",
+      "Bash(curl -s \"http://localhost:5000/api/statistics/words?limit=5\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(powershell -Command \"Stop-Process -Id 20784 -Force\")"
     ]
   }
 }
