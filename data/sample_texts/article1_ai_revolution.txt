@@ -1,0 +1,27 @@
+TITLE: Artificial Intelligence Is Reshaping the Global Economy
+AUTHOR: David Brooks
+NEWSPAPER: The New York Times
+DATE: 2026-03-15
+PAGE: 1
+TOPIC: Technology
+LANGUAGE: en
+---
+The rapid advancement of artificial intelligence is transforming industries across the globe. From healthcare to finance, AI technologies are being adopted at an unprecedented pace, raising both hopes and concerns among workers and policymakers.
+
+In Silicon Valley, tech giants are investing billions of dollars into AI research and development. Google, Microsoft, and OpenAI have all announced major breakthroughs in large language models, which can generate human-like text, translate languages, and even write computer code.
+
+"We are witnessing the most significant technological shift since the invention of the internet," said Dr. Sarah Chen, a professor of computer science at Stanford University. "The question is not whether AI will change the economy, but how quickly and how deeply."
+
+The impact is already being felt in several sectors. In healthcare, AI algorithms are helping doctors diagnose diseases earlier and more accurately. Radiologists are using machine learning tools to detect tumors in medical images that might be missed by the human eye.
+
+In the financial industry, banks are deploying AI systems to detect fraud, assess credit risk, and automate trading. JPMorgan Chase recently announced that its AI-powered fraud detection system has saved the company over two billion dollars in the past year alone.
+
+However, the rise of AI has also sparked fears about job displacement. A recent report by the McKinsey Global Institute estimated that up to 30 percent of work hours in the United States could be automated by 2030. Workers in manufacturing, data entry, and customer service are considered most vulnerable.
+
+Labor unions have responded by calling for stronger worker protections and retraining programs. "Technology should serve people, not replace them," said Maria Rodriguez, president of the International Workers Federation. "We need policies that ensure the benefits of AI are shared broadly."
+
+Governments around the world are scrambling to develop regulatory frameworks for AI. The European Union has proposed the AI Act, which would classify AI systems by risk level and impose strict requirements on high-risk applications. In the United States, the Biden administration issued an executive order on AI safety, calling for transparency and accountability in AI development.
+
+Despite the challenges, many experts remain optimistic about the long-term impact of AI on the economy. "History shows that technological revolutions create more jobs than they destroy," said Professor James Mitchell of the Massachusetts Institute of Technology. "The key is to invest in education and training so that workers can adapt to the changing landscape."
+
+As the AI revolution continues to unfold, one thing is clear: the world of work will never be the same again.
