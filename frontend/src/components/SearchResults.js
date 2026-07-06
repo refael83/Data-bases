@@ -1,4 +1,6 @@
-function SearchResults({ results, type }) {
+import AddToGroupButton from "./AddToGroupButton";
+
+function SearchResults({ results, type, onOpenArticle }) {
   if (!results) {
     return (
       <div className="results-section">
@@ -8,13 +10,13 @@ function SearchResults({ results, type }) {
   }
 
   if (type === "word") {
-    return <WordResults data={results} />;
+    return <WordResults data={results} onOpenArticle={onOpenArticle} />;
   }
 
-  return <MetadataResults data={results} />;
+  return <MetadataResults data={results} onOpenArticle={onOpenArticle} />;
 }
 
-function WordResults({ data }) {
+function WordResults({ data, onOpenArticle }) {
   if (!data.articles || data.articles.length === 0) {
     return (
       <div className="results-section">
@@ -29,7 +31,7 @@ function WordResults({ data }) {
     <div className="results-section">
       <div className="results-summary">
         <h2>
-          Concordance: "{data.word}"
+          Concordance: "{data.word}" <AddToGroupButton word={data.word} />
         </h2>
         <div className="summary-stats">
           <span className="stat-pill">{data.total_occurrences} total occurrences</span>
@@ -40,7 +42,11 @@ function WordResults({ data }) {
       {data.articles.map((art) => (
         <div className="result-card" key={art.article_id}>
           <div className="result-header">
-            <h3>{art.title}</h3>
+            <h3>
+              <button className="link-btn" onClick={() => onOpenArticle && onOpenArticle(art.article_id)}>
+                {art.title}
+              </button>
+            </h3>
             <span className="occurrence-badge">
               {art.occurrence_count} occurrences
             </span>
@@ -113,7 +119,7 @@ function HighlightedSentence({ text, word }) {
   );
 }
 
-function MetadataResults({ data }) {
+function MetadataResults({ data, onOpenArticle }) {
   if (!data || data.length === 0) {
     return (
       <div className="results-section">
@@ -139,7 +145,11 @@ function MetadataResults({ data }) {
         <tbody>
           {data.map((art) => (
             <tr key={art.id}>
-              <td>{art.title}</td>
+              <td>
+                <button className="link-btn" onClick={() => onOpenArticle && onOpenArticle(art.id)}>
+                  {art.title}
+                </button>
+              </td>
               <td>{art.authors || "-"}</td>
               <td>{art.newspaper || "-"}</td>
               <td>

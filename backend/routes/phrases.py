@@ -140,8 +140,27 @@ def search_phrase(pid):
     cur.close()
     conn.close()
 
+    occurrences = [dict(zip(cols, r)) for r in rows]
+
+    articles_map = {}
+    for occ in occurrences:
+        aid = occ["article_id"]
+        if aid not in articles_map:
+            articles_map[aid] = {
+                "article_id": aid,
+                "title": occ["title"],
+                "newspaper": occ["newspaper"],
+                "occurrences": [],
+            }
+        articles_map[aid]["occurrences"].append(occ)
+
+    articles = list(articles_map.values())
+    for art in articles:
+        art["occurrence_count"] = len(art["occurrences"])
+
     return jsonify({
         "phrase": phrase_text,
         "total_occurrences": len(rows),
-        "occurrences": [dict(zip(cols, r)) for r in rows],
+        "article_count": len(articles),
+        "articles": articles,
     })

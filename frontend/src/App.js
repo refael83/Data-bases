@@ -8,6 +8,10 @@ import WordGroups from "./components/WordGroups";
 import Expressions from "./components/Expressions";
 import Statistics from "./components/Statistics";
 import DataMining from "./components/DataMining";
+import ArticleDetail from "./components/ArticleDetail";
+import ArticleCompare from "./components/ArticleCompare";
+import PositionSearch from "./components/PositionSearch";
+import DetailedStats from "./components/DetailedStats";
 import "./App.css";
 
 const NAV_ITEMS = [
@@ -15,9 +19,12 @@ const NAV_ITEMS = [
   { id: "articles", label: "Articles", icon: "☷" },
   { id: "upload", label: "Upload", icon: "↑" },
   { id: "search", label: "Search", icon: "⌕" },
+{ id: "position", label: "Position", icon: "📍" },
   { id: "groups", label: "Word Groups", icon: "☰" },
   { id: "expressions", label: "Expressions", icon: "“" },
+  { id: "compare", label: "Compare", icon: "⇔" },
   { id: "statistics", label: "Statistics", icon: "≡" },
+  { id: "detailed", label: "Detailed Stats", icon: "#" },
   { id: "mining", label: "Data Mining", icon: "⛏" },
 ];
 
@@ -27,6 +34,7 @@ function App() {
   const [searchResults, setSearchResults] = useState(null);
   const [searchType, setSearchType] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedArticleId, setSelectedArticleId] = useState(null);
 
   const handleUploadSuccess = () => {
     setRefreshKey((prev) => prev + 1);
@@ -37,27 +45,45 @@ function App() {
     setSearchType(type);
   };
 
+  const openArticle = (articleId) => {
+    setSelectedArticleId(articleId);
+  };
+
+  const closeArticle = () => {
+    setSelectedArticleId(null);
+  };
+
   const renderPage = () => {
+    if (selectedArticleId) {
+      return <ArticleDetail articleId={selectedArticleId} onBack={closeArticle} />;
+    }
+
     switch (activePage) {
       case "dashboard":
         return <Dashboard />;
       case "articles":
-        return <DocumentList key={refreshKey} />;
+        return <DocumentList key={refreshKey} onOpenArticle={openArticle} />;
       case "upload":
         return <UploadDocument onSuccess={handleUploadSuccess} />;
       case "search":
         return (
           <>
             <SearchBar onResults={handleSearchResults} />
-            <SearchResults results={searchResults} type={searchType} />
+            <SearchResults results={searchResults} type={searchType} onOpenArticle={openArticle} />
           </>
         );
+      case "position":
+        return <PositionSearch />;
+      case "compare":
+        return <ArticleCompare />;
       case "groups":
         return <WordGroups />;
       case "expressions":
         return <Expressions />;
       case "statistics":
         return <Statistics />;
+      case "detailed":
+        return <DetailedStats />;
       case "mining":
         return <DataMining />;
       default:
@@ -82,7 +108,7 @@ function App() {
             <button
               key={item.id}
               className={`nav-item ${activePage === item.id ? "active" : ""}`}
-              onClick={() => setActivePage(item.id)}
+              onClick={() => { setActivePage(item.id); setSelectedArticleId(null); }}
               title={sidebarCollapsed ? item.label : ""}
             >
               <span className="nav-icon">{item.icon}</span>

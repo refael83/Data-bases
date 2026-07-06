@@ -7,8 +7,10 @@ function Expressions() {
   const [phraseText, setPhraseText] = useState("");
   const [phraseName, setPhraseName] = useState("");
   const [searchResult, setSearchResult] = useState(null);
+  const [selectedPhraseId, setSelectedPhraseId] = useState("");
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
 
   const fetchPhrases = () => {
     fetch(`${API_URL}/api/phrases`)
@@ -52,10 +54,12 @@ function Expressions() {
       await fetch(`${API_URL}/api/phrases/${pid}`, { method: "DELETE" });
       fetchPhrases();
       if (searchResult?.phrase_id === pid) setSearchResult(null);
+      if (String(selectedPhraseId) === String(pid)) setSelectedPhraseId("");
     } catch {}
   };
 
   const searchPhrase = async (pid) => {
+    setSearching(true);
     try {
       const res = await fetch(`${API_URL}/api/phrases/${pid}/search`);
       const data = await res.json();
@@ -64,6 +68,14 @@ function Expressions() {
     } catch {
       setMessage({ type: "error", text: "Search failed" });
     }
+    setSearching(false);
+  };
+
+  const handlePhraseSelect = (e) => {
+    const pid = e.target.value;
+    setSelectedPhraseId(pid);
+    if (pid) searchPhrase(pid);
+    else setSearchResult(null);
   };
 
   if (loading) return <div className="page-loading">Loading...</div>;
@@ -94,6 +106,84 @@ function Expressions() {
       </div>
 
       <div className="section-card">
+        <h3>Search Phrase in Articles</h3>
+        {phrases.length === 0 ? (
+          <p className="text-muted">No phrases defined yet. Create one above.</p>
+        ) : (
+          <div className="phrase-search-form">
+            <select value={selectedPhraseId} onChange={handlePhraseSelect}>
+              <option value="">-- Select a phrase --</option>
+              {phrases.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.phrase_text}
+                  {p.user_defined_name ? ` (${p.user_defined_name})` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {searching && <div className="page-loading">Searching...</div>}
+
+        {searchResult && !searching && (
+          <div className="phrase-search-results">
+            <div className="results-summary">
+              <span className="stat-pill">{searchResult.article_count} articles</span>
+              <span className="stat-pill">{searchResult.total_occurrences} total occurrences</span>
+            </div>
+            {searchResult.article_count === 0 ? (
+              <p className="text-muted">No articles contain this phrase.</p>
+            ) : (
+              searchResult.articles.map((art) => (
+                <div key={art.article_id} className="result-card">
+                  <div className="result-header">
+                    <h3>{art.title}</h3>
+                    <span className="occurrence-badge">
+                      {art.occurrence_count} occurrences
+                    </span>
+                  </div>
+                  <div className="result-meta">
+                    <span>{art.newspaper}</span>
+                  </div>
+                  <div className="kwic-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Para</th>
+                          <th>Sent</th>
+                          <th>Pos</th>
+                          <th>Line</th>
+                          <th>Page</th>
+                          <th>Context</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {art.occurrences.map((occ, i) => (
+                          <tr key={i}>
+                            <td className="num-cell">{occ.paragraph_num}</td>
+                            <td className="num-cell">{occ.sentence_num}</td>
+                            <td className="num-cell">{occ.position_in_sentence}</td>
+                            <td className="num-cell">{occ.line_num}</td>
+                            <td className="num-cell">{occ.page_num}</td>
+                            <td className="kwic-cell">
+                              <HighlightPhrase
+                                text={occ.sentence_text}
+                                phrase={searchResult.phrase}
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="section-card">
         <h3>Saved Phrases ({phrases.length})</h3>
         {phrases.length === 0 ? (
           <p className="text-muted">No phrases defined yet. Create one above.</p>
@@ -115,9 +205,6 @@ function Expressions() {
                   <td className="num-cell">{p.word_count}</td>
                   <td>
                     <div className="action-buttons">
-                      <button className="btn-sm" onClick={() => searchPhrase(p.id)}>
-                        Search
-                      </button>
                       <button className="btn-danger-sm" onClick={() => deletePhrase(p.id)}>
                         Delete
                       </button>
@@ -129,45 +216,25 @@ function Expressions() {
           </table>
         )}
       </div>
-
-      {searchResult && (
-        <div className="section-card">
-          <h3>
-            Results for "{searchResult.phrase}" - {searchResult.total_occurrences} occurrences
-          </h3>
-          {searchResult.total_occurrences === 0 ? (
-            <p className="text-muted">No occurrences found in the corpus.</p>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Article</th>
-                  <th>Newspaper</th>
-                  <th>Para</th>
-                  <th>Sent</th>
-                  <th>Pos</th>
-                  <th>Line</th>
-                  <th>Context</th>
-                </tr>
-              </thead>
-              <tbody>
-                {searchResult.occurrences.map((occ, i) => (
-                  <tr key={i}>
-                    <td>{occ.title}</td>
-                    <td>{occ.newspaper}</td>
-                    <td className="num-cell">{occ.paragraph_num}</td>
-                    <td className="num-cell">{occ.sentence_num}</td>
-                    <td className="num-cell">{occ.position_in_sentence}</td>
-                    <td className="num-cell">{occ.line_num}</td>
-                    <td className="kwic-cell">{occ.sentence_text}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
     </div>
+  );
+}
+
+function HighlightPhrase({ text, phrase }) {
+  if (!text || !phrase) return <span>{text}</span>;
+  const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const regex = new RegExp(`(${escaped})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        part.toLowerCase() === phrase.toLowerCase() ? (
+          <mark key={i}>{part}</mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
   );
 }
 

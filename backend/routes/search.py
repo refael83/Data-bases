@@ -158,6 +158,61 @@ def search_metadata():
     return jsonify(results)
 
 
+@search_bp.route("/api/search/position", methods=["GET"])
+def search_by_position():
+    newspaper = request.args.get("newspaper", "").strip()
+    article_id = request.args.get("article_id", type=int)
+    page_num = request.args.get("page", type=int)
+    line_num = request.args.get("line", type=int)
+    position = request.args.get("position", type=int)
+
+    if not newspaper:
+        return jsonify({"error": "Parameter 'newspaper' is required"}), 400
+    if page_num is None or line_num is None or position is None:
+        return jsonify({"error": "Parameters 'page', 'line', and 'position' are required"}), 400
+
+    conn = get_db()
+    cur = conn.cursor()
+
+    article_filter = ""
+    params = [newspaper, page_num, line_num, position]
+    if article_id:
+        article_filter = "AND a.id = %s"
+        params.append(article_id)
+
+    cur.execute(f"""
+        SELECT wo.original_form, w.word_text,
+               a.title, a.id AS article_id,
+               wo.paragraph_num, wo.sentence_num, wo.position_in_sentence,
+               wo.line_num, wo.page_num,
+               s.sentence_text
+        FROM word_occurrences wo
+        JOIN words w ON wo.word_id = w.id
+        JOIN articles a ON wo.article_id = a.id
+        JOIN newspapers n ON a.newspaper_id = n.id
+        JOIN sentences s ON wo.sentence_id = s.id
+        WHERE LOWER(n.name) = LOWER(%s)
+          AND wo.page_num = %s
+          AND wo.line_num = %s
+          AND wo.position_in_sentence = %s
+          {article_filter}
+    """, params)
+
+    rows = cur.fetchall()
+    columns = [desc[0] for desc in cur.description]
+    cur.close()
+    conn.close()
+
+    if not rows:
+        return jsonify({"found": False, "message": "No word found at this position"})
+
+    results = []
+    for row in rows:
+        results.append(dict(zip(columns, row)))
+
+    return jsonify({"found": True, "results": results})
+
+
 @search_bp.route("/api/statistics/words", methods=["GET"])
 def word_statistics():
     """Top N most frequent words (excluding stop words)."""

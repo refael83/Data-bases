@@ -5,6 +5,25 @@ from parser import parse_article, is_stop_word
 
 documents_bp = Blueprint("documents", __name__)
 
+KNOWN_NEWSPAPERS = {
+    "The New York Times": {"country": "USA", "website": "https://www.nytimes.com"},
+    "The Guardian": {"country": "UK", "website": "https://www.theguardian.com"},
+    "The Washington Post": {"country": "USA", "website": "https://www.washingtonpost.com"},
+    "BBC News": {"country": "UK", "website": "https://www.bbc.com/news"},
+    "CNN": {"country": "USA", "website": "https://www.cnn.com"},
+    "Reuters": {"country": "UK", "website": "https://www.reuters.com"},
+    "Al Jazeera": {"country": "Qatar", "website": "https://www.aljazeera.com"},
+    "Haaretz": {"country": "Israel", "website": "https://www.haaretz.com"},
+    "Yedioth Ahronoth": {"country": "Israel", "website": "https://www.ynetnews.com"},
+    "Le Monde": {"country": "France", "website": "https://www.lemonde.fr"},
+    "Der Spiegel": {"country": "Germany", "website": "https://www.spiegel.de"},
+    "The Times": {"country": "UK", "website": "https://www.thetimes.co.uk"},
+    "USA Today": {"country": "USA", "website": "https://www.usatoday.com"},
+    "The Wall Street Journal": {"country": "USA", "website": "https://www.wsj.com"},
+    "Los Angeles Times": {"country": "USA", "website": "https://www.latimes.com"},
+    "Tech Horizons": {"country": "USA", "website": None},
+}
+
 
 @documents_bp.route("/api/articles/upload", methods=["POST"])
 def upload_article():
@@ -29,11 +48,16 @@ def upload_article():
     try:
         # Insert or find newspaper
         newspaper_name = metadata.get("NEWSPAPER", "Unknown")
+        known = KNOWN_NEWSPAPERS.get(newspaper_name, {})
+        country = metadata.get("COUNTRY") or known.get("country")
+        website = metadata.get("WEBSITE") or known.get("website")
         cur.execute("""
-            INSERT INTO newspapers (name) VALUES (%s)
-            ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name
+            INSERT INTO newspapers (name, country, website) VALUES (%s, %s, %s)
+            ON CONFLICT (name) DO UPDATE SET
+                country = COALESCE(EXCLUDED.country, newspapers.country),
+                website = COALESCE(EXCLUDED.website, newspapers.website)
             RETURNING id
-        """, (newspaper_name,))
+        """, (newspaper_name, country, website))
         newspaper_id = cur.fetchone()[0]
 
         # Insert or find topic
@@ -193,6 +217,8 @@ def list_articles():
                a.language, a.word_count, a.sentence_count, a.paragraph_count,
                a.loaded_at,
                n.name AS newspaper,
+               n.country AS newspaper_country,
+               n.website AS newspaper_website,
                t.name AS topic,
                STRING_AGG(au.name, ', ') AS authors
         FROM articles a
@@ -200,7 +226,7 @@ def list_articles():
         LEFT JOIN topics t ON a.topic_id = t.id
         LEFT JOIN article_authors aa ON a.id = aa.article_id
         LEFT JOIN authors au ON aa.author_id = au.id
-        GROUP BY a.id, n.name, t.name
+        GROUP BY a.id, n.name, n.country, n.website, t.name
         ORDER BY a.loaded_at DESC
     """)
     rows = cur.fetchall()

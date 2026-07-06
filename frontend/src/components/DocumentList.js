@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 const API_URL = "http://localhost:5000";
 
-function DocumentList() {
+function DocumentList({ onOpenArticle }) {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +30,8 @@ function DocumentList() {
               <th>Title</th>
               <th>Author</th>
               <th>Newspaper</th>
+              <th>Country</th>
+              <th>Website</th>
               <th>Topic</th>
               <th>Date</th>
               <th>Path</th>
@@ -40,9 +42,21 @@ function DocumentList() {
           <tbody>
             {articles.map((art) => (
               <tr key={art.id}>
-                <td>{art.title}</td>
+                <td>
+                  <button className="link-btn" onClick={() => onOpenArticle && onOpenArticle(art.id)}>
+                    {art.title}
+                  </button>
+                </td>
                 <td>{art.authors || "-"}</td>
                 <td>{art.newspaper || "-"}</td>
+                <td>{art.newspaper_country || "-"}</td>
+                <td>
+                  {art.newspaper_website ? (
+                    <a href={art.newspaper_website} target="_blank" rel="noreferrer">
+                      {art.newspaper_website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+                    </a>
+                  ) : "-"}
+                </td>
                 <td>
                   {art.topic ? (
                     <span className={`badge ${art.topic}`}>{art.topic}</span>
