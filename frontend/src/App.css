@@ -1384,6 +1384,14 @@ body {
   border-radius: 2px;
   font-weight: 600;
 }
+
+.article-text mark {
+  background: #ffe066;
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
 @media (max-width: 768px) {
   .position-fields {
     grid-template-columns: 1fr 1fr;
