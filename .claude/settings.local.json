@@ -47,7 +47,29 @@
       "PowerShell($conn = Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue; if \\($conn\\) { $pid = $conn[0].OwningProcess; Write-Host \"PID: $pid\"; Stop-Process -Id $pid -Force -Confirm:$false })",
       "Bash(Get-Process python *)",
       "Bash(Select-Object Id, ProcessName)",
-      "PowerShell(Get-Process python | Stop-Process -Force; Start-Sleep -Seconds 1; Start-Process python -ArgumentList \"backend/app.py\" -WorkingDirectory \"C:\\\\Users\\\\refae\\\\Desktop\\\\data base\\\\Data-bases\" -WindowStyle Hidden; Start-Sleep -Seconds 3; \\(Invoke-WebRequest -Uri \"http://localhost:5000/api/articles\" -UseBasicParsing\\).StatusCode)"
+      "PowerShell(Get-Process python | Stop-Process -Force; Start-Sleep -Seconds 1; Start-Process python -ArgumentList \"backend/app.py\" -WorkingDirectory \"C:\\\\Users\\\\refae\\\\Desktop\\\\data base\\\\Data-bases\" -WindowStyle Hidden; Start-Sleep -Seconds 3; \\(Invoke-WebRequest -Uri \"http://localhost:5000/api/articles\" -UseBasicParsing\\).StatusCode)",
+      "PowerShell($env:PGPASSWORD = \"1234\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\bin\\\\psql.exe\" -U postgres -c \"SELECT version\\(\\);\" 2>&1)",
+      "PowerShell($env:PGPASSWORD = \"1234\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\bin\\\\psql.exe\" -U postgres -c \"CREATE DATABASE concordance;\" 2>&1)",
+      "PowerShell($env:PGPASSWORD = \".hTdFtJiFSm2F7j\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\bin\\\\pg_dump.exe\" -h db.ohtbhwfroxukiyudrxfr.supabase.co -p 5432 -U postgres -d postgres --no-owner --no-acl -F c -f \"$env:USERPROFILE\\\\Downloads\\\\supabase_backup.dump\" 2>&1)",
+      "PowerShell($env:PGPASSWORD = \".hTdFtJiFSm2F7j\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\18\\\\bin\\\\pg_dump.exe\" -h \"db.ohtbhwfroxukiyudrxfr.supabase.co\" -p 5432 -U postgres -d postgres --no-owner --no-acl -f \"$env:USERPROFILE\\\\Downloads\\\\supabase_backup.sql\" 2>&1)",
+      "PowerShell(Resolve-DnsName \"db.ohtbhwfroxukiyudrxfr.supabase.co\" -ErrorAction SilentlyContinue)",
+      "PowerShell(python \"C:\\\\Users\\\\refae\\\\Desktop\\\\data base\\\\Data-bases\\\\backend\\\\migrate_to_local.py\")",
+      "PowerShell(Test-NetConnection -ComputerName \"google.com\" -Port 443 -InformationLevel Quiet)",
+      "PowerShell(nslookup db.ohtbhwfroxukiyudrxfr.supabase.co 2>&1)",
+      "PowerShell(nslookup db.ohtbhwfroxukiyudrxfr.supabase.co 8.8.8.8 2>&1)",
+      "PowerShell(python \"C:\\\\Users\\\\refae\\\\Desktop\\\\data base\\\\Data-bases\\\\backend\\\\init_db.py\")",
+      "PowerShell(Invoke-RestMethod -Uri \"http://localhost:5000/api/statistics/overview\" -Method Get)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:5000/api/articles\" -UseBasicParsing; $r.StatusCode } catch { $_.Exception.Message })",
+      "mcp__Claude_Browser__preview_start",
+      "Bash(extract-text \"C:\\\\Users\\\\refae\\\\Downloads\\\\final project database .docx\")",
+      "Bash(pandoc \"C:\\\\Users\\\\refae\\\\Downloads\\\\final project database .docx\" -t plain)",
+      "Bash(which extract-text *)",
+      "Bash(npm list *)",
+      "Bash(pip show *)",
+      "Bash(pip3 show *)",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:5000/api/articles\" -UseBasicParsing; $r.Content } catch { $_.Exception.Message })",
+      "PowerShell(try { $r = Invoke-RestMethod -Uri \"http://localhost:5000/api/articles/1\" -UseBasicParsing; Write-Output \"Sentences count: $\\($r.sentences.Count\\)\"; Write-Output \"First sentence: $\\($r.sentences[0].text\\)\"; Write-Output \"Second sentence: $\\($r.sentences[1].text\\)\" } catch { $_.Exception.Message })"
     ]
   }
 }

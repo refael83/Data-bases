@@ -124,12 +124,13 @@ def search_phrase(pid):
 
     query = f"""
         SELECT DISTINCT wo0.article_id, a.title, n.name AS newspaper,
-               s.sentence_text, wo0.paragraph_num, wo0.sentence_num,
+               (SELECT STRING_AGG(wo_r.original_form, ' ' ORDER BY wo_r.position_in_sentence)
+                FROM word_occurrences wo_r WHERE wo_r.sentence_id = wo0.sentence_id) AS sentence_text,
+               wo0.paragraph_num, wo0.sentence_num,
                wo0.position_in_sentence, wo0.line_num, wo0.page_num
         FROM {' '.join(joins)}
         JOIN articles a ON wo0.article_id = a.id
         JOIN newspapers n ON a.newspaper_id = n.id
-        JOIN sentences s ON wo0.sentence_id = s.id
         WHERE {' AND '.join(conditions)}
         ORDER BY wo0.article_id, wo0.paragraph_num, wo0.position_in_sentence
     """

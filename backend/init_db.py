@@ -102,7 +102,6 @@ def init_db():
             article_id INTEGER NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
             paragraph_num INTEGER NOT NULL,
             sentence_num_in_paragraph INTEGER NOT NULL,
-            sentence_text TEXT NOT NULL,
             word_count INTEGER DEFAULT 0,
             char_count INTEGER DEFAULT 0
         )
@@ -121,8 +120,7 @@ def init_db():
             sentence_num INTEGER NOT NULL,
             position_in_sentence INTEGER NOT NULL,
             line_num INTEGER NOT NULL,
-            page_num INTEGER NOT NULL,
-            char_offset INTEGER NOT NULL
+            page_num INTEGER NOT NULL
         )
     """)
 

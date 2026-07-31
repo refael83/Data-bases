@@ -38,12 +38,12 @@ def search_word():
             wo.line_num,
             wo.page_num,
             wo.original_form,
-            s.sentence_text
+            (SELECT STRING_AGG(wo2.original_form, ' ' ORDER BY wo2.position_in_sentence)
+             FROM word_occurrences wo2 WHERE wo2.sentence_id = wo.sentence_id) AS sentence_text
         FROM word_occurrences wo
         JOIN articles a ON wo.article_id = a.id
         JOIN newspapers n ON a.newspaper_id = n.id
         LEFT JOIN topics t ON a.topic_id = t.id
-        JOIN sentences s ON wo.sentence_id = s.id
         WHERE wo.word_id = %s
         ORDER BY a.publication_date DESC, wo.paragraph_num, wo.position_in_sentence
     """, (word_id,))
@@ -185,12 +185,12 @@ def search_by_position():
                a.title, a.id AS article_id,
                wo.paragraph_num, wo.sentence_num, wo.position_in_sentence,
                wo.line_num, wo.page_num,
-               s.sentence_text
+               (SELECT STRING_AGG(wo2.original_form, ' ' ORDER BY wo2.position_in_sentence)
+                FROM word_occurrences wo2 WHERE wo2.sentence_id = wo.sentence_id) AS sentence_text
         FROM word_occurrences wo
         JOIN words w ON wo.word_id = w.id
         JOIN articles a ON wo.article_id = a.id
         JOIN newspapers n ON a.newspaper_id = n.id
-        JOIN sentences s ON wo.sentence_id = s.id
         WHERE LOWER(n.name) = LOWER(%s)
           AND wo.page_num = %s
           AND wo.line_num = %s

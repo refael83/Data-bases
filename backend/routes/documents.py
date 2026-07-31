@@ -128,7 +128,7 @@ def upload_article():
         # Batch insert sentences
         sent_values = [
             (article_id, s["paragraph_num"], s["sentence_num_in_paragraph"],
-             s["sentence_text"], s["word_count"], s["char_count"])
+             s["word_count"], s["char_count"])
             for s in sentences
         ]
         sentence_ids = []
@@ -136,7 +136,7 @@ def upload_article():
             results = execute_values(cur, """
                 INSERT INTO sentences
                     (article_id, paragraph_num, sentence_num_in_paragraph,
-                     sentence_text, word_count, char_count)
+                     word_count, char_count)
                 VALUES %s RETURNING id
             """, sent_values, fetch=True)
             sentence_ids = [r[0] for r in results]
@@ -167,7 +167,7 @@ def upload_article():
              sentence_ids[occ["sentence_index"]], occ["original_form"],
              occ["paragraph_num"], occ["sentence_num"],
              occ["position_in_sentence"],
-             occ["line_num"], occ["page_num"], occ["char_offset"])
+             occ["line_num"], occ["page_num"])
             for occ in occurrences
         ]
         if occ_values:
@@ -175,7 +175,7 @@ def upload_article():
                 INSERT INTO word_occurrences
                     (word_id, article_id, sentence_id, original_form,
                      paragraph_num, sentence_num, position_in_sentence,
-                     line_num, page_num, char_offset)
+                     line_num, page_num)
                 VALUES %s
             """, occ_values)
 
@@ -275,14 +275,16 @@ def get_article(article_id):
     """, (article_id,))
     art["authors"] = [r[0] for r in cur.fetchall()]
 
-    # Get sentences
+    # Get sentences (reconstructed from word occurrences)
     cur.execute("""
-        SELECT paragraph_num, sentence_num_in_paragraph, sentence_text
-        FROM sentences WHERE article_id = %s
-        ORDER BY paragraph_num, sentence_num_in_paragraph
+        SELECT s.paragraph_num, s.sentence_num_in_paragraph,
+               (SELECT STRING_AGG(wo.original_form, ' ' ORDER BY wo.position_in_sentence)
+                FROM word_occurrences wo WHERE wo.sentence_id = s.id) AS sentence_text
+        FROM sentences s WHERE s.article_id = %s
+        ORDER BY s.paragraph_num, s.sentence_num_in_paragraph
     """, (article_id,))
     art["sentences"] = [
-        {"paragraph": r[0], "sentence_num": r[1], "text": r[2]}
+        {"paragraph": r[0], "sentence_num": r[1], "text": r[2] or ""}
         for r in cur.fetchall()
     ]
 

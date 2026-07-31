@@ -164,7 +164,9 @@ def group_occurrences(gid):
     group_name = row[0]
 
     cur.execute("""
-        SELECT w.word_text, a.title, n.name AS newspaper, s.sentence_text,
+        SELECT w.word_text, a.title, n.name AS newspaper,
+               (SELECT STRING_AGG(wo2.original_form, ' ' ORDER BY wo2.position_in_sentence)
+                FROM word_occurrences wo2 WHERE wo2.sentence_id = wo.sentence_id) AS sentence_text,
                wo.paragraph_num, wo.sentence_num, wo.position_in_sentence,
                wo.line_num, wo.page_num, wo.original_form
         FROM word_occurrences wo
@@ -172,7 +174,6 @@ def group_occurrences(gid):
         JOIN words w ON wo.word_id = w.id
         JOIN articles a ON wo.article_id = a.id
         JOIN newspapers n ON a.newspaper_id = n.id
-        JOIN sentences s ON wo.sentence_id = s.id
         ORDER BY w.word_text, a.title, wo.paragraph_num, wo.position_in_sentence
     """, (gid,))
 

@@ -289,9 +289,9 @@ def detailed_stats():
 
         # Characters per sentence
         cur.execute("""
-            SELECT MIN(LENGTH(s.sentence_text)) AS min_val,
-                   MAX(LENGTH(s.sentence_text)) AS max_val,
-                   ROUND(AVG(LENGTH(s.sentence_text)), 2) AS avg_val,
+            SELECT MIN(s.char_count) AS min_val,
+                   MAX(s.char_count) AS max_val,
+                   ROUND(AVG(s.char_count), 2) AS avg_val,
                    COUNT(*) AS total
             FROM sentences s WHERE s.article_id = %s
         """, (article_id,))
@@ -299,7 +299,7 @@ def detailed_stats():
 
         # Characters per paragraph
         cur.execute("""
-            SELECT paragraph_num, SUM(LENGTH(sentence_text)) AS chars
+            SELECT paragraph_num, SUM(char_count) AS chars
             FROM sentences WHERE article_id = %s
             GROUP BY paragraph_num
         """, (article_id,))
@@ -394,8 +394,8 @@ def detailed_stats():
         chars_per_word = {"min_val": r[0], "max_val": r[1], "avg_val": r[2], "total": r[3]}
 
         cur.execute("""
-            SELECT MIN(LENGTH(s.sentence_text)), MAX(LENGTH(s.sentence_text)),
-                   ROUND(AVG(LENGTH(s.sentence_text)), 2), COUNT(*)
+            SELECT MIN(s.char_count), MAX(s.char_count),
+                   ROUND(AVG(s.char_count), 2), COUNT(*)
             FROM sentences s
         """)
         r = cur.fetchone()
@@ -403,7 +403,7 @@ def detailed_stats():
 
         cur.execute("""
             SELECT MIN(pc), MAX(pc), ROUND(AVG(pc), 2), SUM(pc)
-            FROM (SELECT SUM(LENGTH(sentence_text)) AS pc
+            FROM (SELECT SUM(char_count) AS pc
                   FROM sentences GROUP BY article_id, paragraph_num) sub
         """)
         r = cur.fetchone()
@@ -456,7 +456,7 @@ def detailed_stats():
 
         cur.execute("""
             SELECT MIN(ac), MAX(ac), ROUND(AVG(ac), 2)
-            FROM (SELECT SUM(LENGTH(sentence_text)) AS ac
+            FROM (SELECT SUM(char_count) AS ac
                   FROM sentences GROUP BY article_id) sub
         """)
         r = cur.fetchone()

@@ -81,18 +81,22 @@ def _parse_body(body_text):
     global_sentence_num = 0
 
     for para_num, (para_text, para_char_start) in enumerate(paragraphs, 1):
-        sent_spans = _split_sentences(para_text)
+        sent_in_para = 0
 
-        for sent_in_para, (sent_text, sent_offset) in enumerate(sent_spans, 1):
+        for sent_text, sent_offset in _split_sentences(para_text):
+            words = _tokenize(sent_text)
+            # A sentence carries no text of its own — it is rebuilt from its
+            # occurrences. One with no tokens would render as a blank line.
+            if not words:
+                continue
+
+            sent_in_para += 1
             global_sentence_num += 1
             sent_char_start = para_char_start + sent_offset
-
-            words = _tokenize(sent_text)
 
             all_sentences.append({
                 "paragraph_num": para_num,
                 "sentence_num_in_paragraph": sent_in_para,
-                "sentence_text": sent_text,
                 "word_count": len(words),
                 "char_count": len(sent_text),
             })
@@ -111,7 +115,6 @@ def _parse_body(body_text):
                     "position_in_sentence": word_pos,
                     "line_num": line,
                     "page_num": page,
-                    "char_offset": abs_off,
                     "sentence_index": len(all_sentences) - 1,
                 })
 
@@ -126,40 +129,70 @@ def _parse_body(body_text):
     return all_sentences, all_occurrences, stats
 
 
+# Terminators may be followed by closing quotes/brackets, which belong to the
+# sentence that is ending rather than to the next one.
+_SENTENCE_END = re.compile(r"[.!?]+[\"'”’)\]]*")
+
+# Abbreviations whose trailing period does not end a sentence.
+ABBREVIATIONS = {
+    "dr", "mr", "mrs", "ms", "prof", "st", "jr", "sr", "vs", "etc", "inc",
+    "ltd", "co", "corp", "dept", "est", "fig", "vol", "no", "approx",
+    "gen", "gov", "sen", "rep", "capt", "lt", "sgt", "u.s", "e.g", "i.e",
+}
+
+_TRAILING_TOKEN = re.compile(r"([A-Za-z][A-Za-z.]*)$")
+
+
 def _split_sentences(text):
     """Split text into sentences, returning (text, start_offset) pairs."""
     results = []
-    last_end = 0
+    n = len(text)
+    start = 0
 
-    for match in re.finditer(r"[^.!?]*[.!?]+", text):
-        sent = match.group().strip()
-        if sent:
-            start = match.start()
-            while start < len(text) and text[start] in " \t":
-                start += 1
-            results.append((sent, start))
-        last_end = match.end()
+    def emit(chunk_start, chunk_end):
+        sent = text[chunk_start:chunk_end].strip()
+        if not sent:
+            return
+        off = chunk_start
+        while off < n and text[off] in " \t":
+            off += 1
+        results.append((sent, off))
 
-    remaining = text[last_end:].strip()
-    if remaining:
-        start = last_end
-        while start < len(text) and text[start] in " \t":
-            start += 1
-        results.append((remaining, start))
+    for match in _SENTENCE_END.finditer(text):
+        dot = match.start()
+        end = match.end()
 
-    if not results and text.strip():
-        start = 0
-        while start < len(text) and text[start] in " \t":
-            start += 1
-        results.append((text.strip(), start))
+        # Decimal point inside a number: "1.5", "3.14"
+        if text[dot] == "." and dot > 0 and text[dot - 1].isdigit():
+            if end < n and text[end].isdigit():
+                continue
 
+        # Known abbreviation: "Dr.", "U.S.", "e.g."
+        trailing = _TRAILING_TOKEN.search(text[start:dot])
+        if trailing and trailing.group(1).lower().rstrip(".") in ABBREVIATIONS:
+            continue
+
+        # A real boundary is followed by whitespace or the end of the text.
+        if end < n and not text[end].isspace():
+            continue
+
+        emit(start, end)
+        start = end
+
+    emit(start, n)
     return results
+
+
+# Words (Latin or Hebrew) and numbers, including decimals such as "1.5".
+# Numbers are indexed too: the stored occurrences are the only record of the
+# text, so anything skipped here is lost from the reconstructed sentence.
+_TOKEN = re.compile(r"[a-zA-Z֐-׿][\w']*|\d+(?:[.,]\d+)*")
 
 
 def _tokenize(sentence_text):
     """Returns list of (normalized, original_form, char_offset_in_sentence)."""
     words = []
-    for match in re.finditer(r"[a-zA-Z֐-׿][\w']*", sentence_text):
+    for match in _TOKEN.finditer(sentence_text):
         original = match.group()
         normalized = original.lower()
         words.append((normalized, original, match.start()))
