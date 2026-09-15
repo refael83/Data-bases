@@ -33,6 +33,11 @@ function PositionSearch() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (!newspaper || !page || !line || !position) return;
+    const posNum = parseInt(position, 10);
+    if (isNaN(posNum) || posNum < 1) {
+      setResult({ found: false, _error: "Position must be a positive number (1, 2, 3…)" });
+      return;
+    }
     setLoading(true);
     const params = new URLSearchParams({
       newspaper,
@@ -134,8 +139,14 @@ function PositionSearch() {
 
       {result && (
         <div className="position-result">
-          {!result.found ? (
+          {result._error ? (
+            <div className="no-results" style={{ color: "#ef4444" }}>{result._error}</div>
+          ) : !result.found ? (
             <div className="no-results">No word found at this position.</div>
+          ) : result.results && result.results.length > 1 && !articleId ? (
+            <div className="no-results" style={{ color: "#f59e0b" }}>
+              Multiple matches found across articles. Select a specific article to narrow down to one word.
+            </div>
           ) : (
             result.results.map((r, i) => (
               <div key={i} className="position-result-card">
